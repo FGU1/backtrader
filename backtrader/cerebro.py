@@ -330,7 +330,9 @@ class Cerebro(with_metaclass(MetaParams, object)):
         for elem in iterable:
             if isinstance(elem, string_types):
                 elem = (elem,)
-            elif not isinstance(elem, collections.Iterable):
+            # collections.Iterable removed in python 3.10. See https://docs.python.org/3.9/library/collections.html
+            # collections => collections.abc
+            elif not isinstance(elem, collections.abc.Iterable):
                 elem = (elem,)
 
             niterable.append(elem)
@@ -1554,8 +1556,19 @@ class Cerebro(with_metaclass(MetaParams, object)):
                 if onlyresample or noresample:
                     dt0 = min((d for d in dts if d is not None))
                 else:
-                    dt0 = min((d for i, d in enumerate(dts)
-                               if d is not None and i not in rsonly))
+                    #fix "ValueError: min() arg is an empty sequence" error
+                    zd = []
+                    for i, d in enumerate(dts):
+                        if d is not None and i not in rsonly:
+                            zd.append(d)
+                    if len(zd) > 0:
+                        dt0 = min(zd)
+                    else:
+                        dt0 = None
+                    # print("ValueError: min() arg is an empty sequence:", dts, zd, rsonly, dt0, flush=True)
+
+                    if dt0 is None:
+                        continue
 
                 dmaster = datas[dts.index(dt0)]  # and timemaster
                 self._dtmaster = dmaster.num2date(dt0)

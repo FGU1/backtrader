@@ -179,21 +179,27 @@ class IBOrder(OrderBase, ib.ext.Order.Order):
             tif = 'GTC'  # Good til cancelled
         elif isinstance(self.valid, (datetime, date)):
             tif = 'GTD'  # Good til date
-            self.m_goodTillDate = bytes(self.valid.strftime('%Y%m%d %H:%M:%S'))
+            # Error errorCode=2174, errorMsg=Warning: You submitted request with date-time attributes without
+            # explicit time zone. Please switch to use yyyymmdd-hh:mm:ss in UTC or use instrument time zone,
+            # like US/Eastern. Implied time zone functionality will be removed in the next API release>
+            # => addition of a '-' in the dt format. Dt will be considered UTC by IB
+            self.m_goodTillDate = bytes(self.valid.strftime('%Y%m%d-%H:%M:%S'))
         elif isinstance(self.valid, (timedelta,)):
             if self.valid == self.DAY:
                 tif = 'DAY'
             else:
                 tif = 'GTD'  # Good til date
                 valid = datetime.now() + self.valid  # .now, using localtime
-                self.m_goodTillDate = bytes(valid.strftime('%Y%m%d %H:%M:%S'))
+                # => addition of a '-' in the dt format. Dt will be considered UTC by IB
+                self.m_goodTillDate = bytes(valid.strftime('%Y%m%d-%H:%M:%S'))
 
         elif self.valid == 0:
             tif = 'DAY'
         else:
             tif = 'GTD'  # Good til date
             valid = num2date(self.valid)
-            self.m_goodTillDate = bytes(valid.strftime('%Y%m%d %H:%M:%S'))
+            # => addition of a '-' in the dt format. Dt will be considered UTC by IB
+            self.m_goodTillDate = bytes(valid.strftime('%Y%m%d-%H:%M:%S'))
 
         self.m_tif = bytes(tif)
 
