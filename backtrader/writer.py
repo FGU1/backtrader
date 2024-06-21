@@ -205,7 +205,9 @@ class WriterFile(WriterBase):
                     self.writelineseparator(level=level)
                 self.writeline(kline)
                 self.writedict(val, level=level + 1, recurse=True)
-            elif isinstance(val, (list, tuple, collections.Iterable)):
+            # collections.Iterable removed in python 3.10. See https://docs.python.org/3.9/library/collections.html
+            # collections => collections.abc
+            elif isinstance(val, (list, tuple, collections.abc.Iterable)):
                 line = ', '.join(map(str, val))
                 self.writeline(kline + ' ' + line)
             else:
