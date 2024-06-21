@@ -853,8 +853,7 @@ class IBStore(with_metaclass(MetaSingleton, object)):
         '''
         # get a ticker/queue for identification/data delivery
         tickerId, q = self.getTickerQueue()
-        #ticks = '233'  # request RTVOLUME tick delivered over tickString
-        ticks = '375'  # request RTVOLUME tick delivered over tickString
+        ticks = '233'  # request RTVOLUME tick delivered over tickString
         if contract.m_secType in ['CASH', 'CFD']:
             self.iscash[tickerId] = True
             ticks = ''  # cash markets do not get RTVOLUME
